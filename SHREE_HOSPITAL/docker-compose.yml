@@ -1,0 +1,37 @@
+version: "3.8"
+
+networks:
+  hospital-net:
+    driver: bridge
+
+services:
+
+  mysql-db:
+    image: mysql:8
+    container_name: mysql-db
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql-init:/docker-entrypoint-initdb.d
+    ports:
+      - "3306:3306"
+    networks:
+      - hospital-net
+
+  hospital-app:
+    build: .
+    container_name: hospital-app
+    restart: always
+    depends_on:
+      - mysql-db
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+    networks:
+      - hospital-net
+
+volumes:
+  mysql_data:
